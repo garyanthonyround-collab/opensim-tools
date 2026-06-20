@@ -4,6 +4,34 @@ from opensim_tools.terrain.os_grid import OSTile
 
 from opensim_tools.terrain.mosaic import TerrainMosaic
 
+from opensim_tools.terrain.model import TerrainModel
+
+def write_ascii_grid(path, xllcorner, yllcorner, value=1):
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with path.open("w") as f:
+        f.write("ncols 2\n")
+        f.write("nrows 2\n")
+        f.write(f"xllcorner {xllcorner}\n")
+        f.write(f"yllcorner {yllcorner}\n")
+        f.write("cellsize 50\n")
+        f.write("NODATA_value -9999\n")
+        f.write(f"{value} {value}\n")
+        f.write(f"{value} {value}\n")
+
+def test_terrain_project_builds_model(tmp_path):
+    dataset = tmp_path / "data"
+    write_ascii_grid(dataset / "ny" / "NY45.asc", 340000, 550000)
+
+    project = (
+        TerrainProject(dataset=dataset)
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    terrain = project.build()
+
+    assert isinstance(terrain, TerrainModel)
 
 def test_terrain_project_creates_mosaic(tmp_path):
     project = (

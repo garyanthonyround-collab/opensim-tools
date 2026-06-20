@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from .os_grid import DEFAULT_DATASET, OSTile
 from .mosaic import TerrainMosaic
+from conftest import write_ascii_grid
 
 
 @dataclass
@@ -36,6 +37,9 @@ class TerrainProject:
         north = int(digits[2:]) * 1000
 
         return 300000 + east, 500000 + north
+
+    def build(self):
+        return self.mosaic.to_model()
 
     @property
     def bounds(self):
