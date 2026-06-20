@@ -53,3 +53,14 @@ def test_terrain_project_required_tiles():
     )
 
     assert project.required_tile_references == ["NY45"]
+
+def test_terrain_project_required_tiles_use_dataset(tmp_path):
+    project = (
+        TerrainProject(dataset=tmp_path)
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    tiles = project.required_tiles
+
+    assert tiles[0].dataset == tmp_path

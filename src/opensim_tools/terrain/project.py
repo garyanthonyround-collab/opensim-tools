@@ -1,8 +1,10 @@
 from dataclasses import dataclass
-from .os_grid import OSTile
+from pathlib import Path
+from .os_grid import DEFAULT_DATASET, OSTile
 
 @dataclass
 class TerrainProject:
+    dataset: Path = DEFAULT_DATASET
     centre_reference: str | None = None
     centre_point: tuple[int, int] | None = None
     size_m: int | None = None
@@ -78,6 +80,6 @@ class TerrainProject:
     @property
     def required_tiles(self):
         return [
-            OSTile(reference)
+            OSTile(reference, dataset=self.dataset)
             for reference in self.required_tile_references
         ]
