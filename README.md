@@ -116,6 +116,3 @@ Development follows a test-first approach using pytest, and all new features sho
 ________________________________________
 Licence
 MIT License
-
-
-
