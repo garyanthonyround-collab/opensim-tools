@@ -2,6 +2,20 @@ from opensim_tools.terrain.project import TerrainProject
 
 from opensim_tools.terrain.os_grid import OSTile
 
+from opensim_tools.terrain.mosaic import TerrainMosaic
+
+
+def test_terrain_project_creates_mosaic(tmp_path):
+    project = (
+        TerrainProject(dataset=tmp_path)
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    mosaic = project.mosaic
+
+    assert isinstance(mosaic, TerrainMosaic)
+    assert mosaic.references == ["NY45"]
 
 def test_terrain_project_required_tiles_are_os_tiles():
     project = (

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 from .os_grid import DEFAULT_DATASET, OSTile
+from .mosaic import TerrainMosaic
+
 
 @dataclass
 class TerrainProject:
@@ -83,3 +85,7 @@ class TerrainProject:
             OSTile(reference, dataset=self.dataset)
             for reference in self.required_tile_references
         ]
+
+    @property
+    def mosaic(self):
+        return TerrainMosaic.from_tiles(*self.required_tiles)
