@@ -1,0 +1,9 @@
+[project]
+name = "opensim-tools"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["click", "numpy",
+  "pillow"]
+
+[project.scripts]
+opensim-terrain = "opensim_tools.terrain.cli:main"

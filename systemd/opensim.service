@@ -1,0 +1,19 @@
+[Unit]
+Description=OpenSimulator Standalone
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=opensim
+Group=opensim
+WorkingDirectory=/opt/opensim/bin
+ExecStart=/usr/bin/dotnet /opt/opensim/bin/OpenSim.dll -console=rest
+Restart=on-failure
+RestartSec=10
+
+# Give OpenSim time to shut down cleanly
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target
