@@ -32,3 +32,45 @@ class TerrainProject:
         north = int(digits[2:]) * 1000
 
         return 300000 + east, 500000 + north
+
+    @property
+    def bounds(self):
+        if self.centre_point is None:
+            raise ValueError("Project centre has not been set")
+
+        if self.size_m is None:
+            raise ValueError("Project size has not been set")
+
+        half = self.size_m // 2
+
+        x, y = self.centre_point
+
+        return (
+            x - half,
+            y - half,
+            x + half,
+            y + half,
+        )
+
+    @property
+    def required_tile_references(self):
+        min_x, min_y, max_x, max_y = self.bounds
+
+        tile_min_x = min_x // 10000
+        tile_max_x = (max_x - 1) // 10000
+        tile_min_y = min_y // 10000
+        tile_max_y = (max_y - 1) // 10000
+
+        refs = []
+
+        for tx in range(tile_min_x, tile_max_x + 1):
+            for ty in range(tile_min_y, tile_max_y + 1):
+                refs.append(self._tile_reference(tx, ty))
+
+        return refs
+
+    def _tile_reference(self, tile_x, tile_y):
+        if not (30 <= tile_x <= 39 and 50 <= tile_y <= 59):
+            raise ValueError("Only NY tile references are currently supported")
+
+        return f"NY{tile_x - 30}{tile_y - 50}"

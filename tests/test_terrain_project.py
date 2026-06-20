@@ -15,3 +15,26 @@ def test_terrain_project_stores_size():
     project = TerrainProject().size(1024)
 
     assert project.size_m == 1024
+
+def test_terrain_project_bounds():
+    project = (
+        TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    assert project.bounds == (
+        343488,
+        551488,
+        344512,
+        552512,
+    )
+
+def test_terrain_project_required_tiles():
+    project = (
+        TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    assert project.required_tile_references == ["NY45"]
