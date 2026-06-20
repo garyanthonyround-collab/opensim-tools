@@ -7,3 +7,6 @@ dependencies = ["click", "numpy",
 
 [project.scripts]
 opensim-terrain = "opensim_tools.terrain.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest"]
