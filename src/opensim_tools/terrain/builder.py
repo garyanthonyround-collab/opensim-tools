@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
+
 import numpy as np
 
 from .model import TerrainModel
+from .os_grid import OSTile
 
 
 class TerrainBuilder:
@@ -45,3 +47,29 @@ class TerrainBuilder:
 
         Path(json_path).write_text(json.dumps(metadata, indent=2), encoding="utf-8")
         return metadata
+
+    def build_from_tile(
+        self,
+        tile_ref,
+        out_prefix=None,
+        size=256,
+        min_height=2.0,
+        max_height=65.0,
+        smooth=1,
+    ):
+        tile = OSTile(tile_ref)
+
+        if not tile.exists:
+            raise FileNotFoundError(f"OS Terrain 50 tile not found: {tile.path}")
+
+        if out_prefix is None:
+            out_prefix = f"/var/lib/opensim/terrains/{tile.reference}"
+
+        return self.build_from_file(
+            tile.path,
+            out_prefix,
+            size=size,
+            min_height=min_height,
+            max_height=max_height,
+            smooth=smooth,
+        )
