@@ -10,3 +10,8 @@ def test_terrain_project_parses_centre_reference():
     project = TerrainProject().centre("NY4452")
 
     assert project.centre_point == (344000, 552000)
+
+def test_terrain_project_stores_size():
+    project = TerrainProject().size(1024)
+
+    assert project.size_m == 1024

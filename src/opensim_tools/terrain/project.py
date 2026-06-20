@@ -5,10 +5,15 @@ from dataclasses import dataclass
 class TerrainProject:
     centre_reference: str | None = None
     centre_point: tuple[int, int] | None = None
+    size_m: int | None = None
 
     def centre(self, reference: str):
         self.centre_reference = reference.upper()
         self.centre_point = self._parse_reference(reference)
+        return self
+
+    def size(self, metres: int):
+        self.size_m = metres
         return self
 
     def _parse_reference(self, reference: str) -> tuple[int, int]:
