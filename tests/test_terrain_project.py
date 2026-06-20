@@ -1,5 +1,20 @@
 from opensim_tools.terrain.project import TerrainProject
 
+from opensim_tools.terrain.os_grid import OSTile
+
+
+def test_terrain_project_required_tiles_are_os_tiles():
+    project = (
+        TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    tiles = project.required_tiles
+
+    assert len(tiles) == 1
+    assert isinstance(tiles[0], OSTile)
+    assert tiles[0].reference == "NY45"
 
 def test_terrain_project_stores_centre_reference():
     project = TerrainProject().centre("NY4452")

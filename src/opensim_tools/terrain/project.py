@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from .os_grid import OSTile
 
 @dataclass
 class TerrainProject:
@@ -74,3 +74,10 @@ class TerrainProject:
             raise ValueError("Only NY tile references are currently supported")
 
         return f"NY{tile_x - 30}{tile_y - 50}"
+
+    @property
+    def required_tiles(self):
+        return [
+            OSTile(reference)
+            for reference in self.required_tile_references
+        ]
