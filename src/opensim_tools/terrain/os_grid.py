@@ -23,6 +23,18 @@ class OSTile:
     def exists(self) -> bool:
         return self.path.exists()
 
+    @property
+    def origin(self):
+        from .ascii_grid import read_ascii_grid
+
+        header, _ = read_ascii_grid(self.path)
+        return int(header["xllcorner"]), int(header["yllcorner"])
+
+    @property
+    def bounds(self):
+        x, y = self.origin
+        return x, y, x + 10000, y + 10000
+
 
 def tile_to_path(tile: str, dataset=DEFAULT_DATASET) -> Path:
     return OSTile(tile, dataset=dataset).path

@@ -18,3 +18,12 @@ def test_invalid_tile_reference():
         pass
     else:
         raise AssertionError("Expected ValueError")
+
+def test_os_tile_origin_from_ascii_header():
+    tile = OSTile("NY43")
+    assert tile.origin == (340000, 530000)
+
+
+def test_os_tile_bounds_from_ascii_header():
+    tile = OSTile("NY43")
+    assert tile.bounds == (340000, 530000, 350000, 540000)
