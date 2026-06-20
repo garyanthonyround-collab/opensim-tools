@@ -3,6 +3,21 @@ import pytest
 
 from opensim_tools.terrain.model import TerrainModel
 
+def test_terrain_model_crop_rejects_negative_coordinates():
+    data = np.arange(100).reshape((10, 10))
+    model = TerrainModel({"ncols": 10, "nrows": 10}, data)
+
+    with pytest.raises(ValueError):
+        model.crop(-1, 0, 4, 4)
+
+
+def test_terrain_model_crop_rejects_out_of_bounds_area():
+    data = np.arange(100).reshape((10, 10))
+    model = TerrainModel({"ncols": 10, "nrows": 10}, data)
+
+    with pytest.raises(ValueError):
+        model.crop(8, 8, 4, 4)
+
 
 def test_terrain_model_crop():
     data = np.arange(100).reshape((10, 10))

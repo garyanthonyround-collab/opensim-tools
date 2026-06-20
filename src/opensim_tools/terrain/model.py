@@ -20,6 +20,16 @@ class TerrainModel:
         return cls(header, data)
 
     def crop(self, x, y, width, height):
+        if x < 0 or y < 0:
+            raise ValueError("Crop coordinates must be non-negative")
+
+        if width <= 0 or height <= 0:
+            raise ValueError("Crop width and height must be positive")
+
+        nrows, ncols = self.data.shape
+
+        if x + width > ncols or y + height > nrows:
+            raise ValueError("Crop area extends beyond terrain bounds")
         cellsize = self.header.get("cellsize", 1)
 
         row_start = y
