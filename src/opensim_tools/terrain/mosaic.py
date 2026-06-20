@@ -36,3 +36,16 @@ class TerrainMosaic:
             refs = ", ".join(tile.reference for tile in missing)
             raise FileNotFoundError(f"Missing OS Terrain 50 tiles: {refs}")
         return self
+
+    @property
+    def extent(self):
+        self.validate()
+
+        bounds = [tile.bounds for tile in self.tiles]
+
+        min_x = min(b[0] for b in bounds)
+        min_y = min(b[1] for b in bounds)
+        max_x = max(b[2] for b in bounds)
+        max_y = max(b[3] for b in bounds)
+
+        return min_x, min_y, max_x, max_y

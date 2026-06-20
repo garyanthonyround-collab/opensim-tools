@@ -16,3 +16,7 @@ def test_mosaic_accepts_ostile_instances():
 def test_mosaic_paths():
     mosaic = TerrainMosaic.from_tiles("NY43")
     assert str(mosaic.paths[0]).endswith("/srv/gis/os-terrain50/data/ny/NY43.asc")
+
+def test_mosaic_extent():
+    mosaic = TerrainMosaic.from_tiles("NY43", "NY44")
+    assert mosaic.extent == (340000, 530000, 350000, 550000)
