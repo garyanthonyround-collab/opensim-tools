@@ -178,6 +178,24 @@ Current responsibilities include:
 
 ---
 
+## `TerrainProject`
+
+`TerrainProject` is the high-level terrain workflow API.
+
+It is intended to replace `TerrainBuilder` as the main orchestration layer for terrain generation.
+
+Responsibilities:
+
+- Store project intent such as centre point, size, dataset, and output resolution
+- Calculate project bounds
+- Determine required OS Terrain 50 tiles
+- Create a `TerrainMosaic`
+- Build a `TerrainModel`
+- Eventually apply cropping, resampling, normalisation, smoothing, and export workflows
+
+`TerrainProject` should become the primary API used by the CLI.
+
+
 ## Module Responsibilities
 
 | Module          | Responsibility                          |
