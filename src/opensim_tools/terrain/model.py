@@ -19,6 +19,23 @@ class TerrainModel:
         header, data = read_ascii_grid(filename)
         return cls(header, data)
 
+    def crop(self, x, y, width, height):
+        cellsize = self.header.get("cellsize", 1)
+
+        row_start = y
+        row_end = y + height
+        col_start = x
+        col_end = x + width
+
+        self.data = self.data[row_start:row_end, col_start:col_end]
+
+        self.header["ncols"] = width
+        self.header["nrows"] = height
+        self.header["xllcorner"] = self.header.get("xllcorner", 0) + (x * cellsize)
+        self.header["yllcorner"] = self.header.get("yllcorner", 0) + (y * cellsize)
+
+        return self
+
     def resample(self, size=256):
         self.data = resample_bilinear(self.data, size=size)
         return self
