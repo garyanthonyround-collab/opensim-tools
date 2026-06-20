@@ -8,3 +8,5 @@ build/
 *.r32
 *.png
 *.json
+backups/
+terrain/
