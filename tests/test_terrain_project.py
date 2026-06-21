@@ -21,12 +21,12 @@ def write_ascii_grid(path, xllcorner, yllcorner, value=1):
 
 def test_terrain_project_builds_model(tmp_path):
     dataset = tmp_path / "data"
-    write_ascii_grid(dataset / "ny" / "NY45.asc", 340000, 550000)
+    write_ascii_grid(dataset / "ny" / "NY45.asc", 343950, 551950)
 
     project = (
         TerrainProject(dataset=dataset)
         .centre("NY4452")
-        .size(1024)
+        .size(100)
     )
 
     terrain = project.build()
@@ -117,3 +117,14 @@ def test_project_resolution_can_be_set():
     project = TerrainProject().resolution(512)
 
     assert project.resolution_samples == 512
+
+def test_project_build_crops_model_to_project_size():
+    project = (
+        TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+    )
+
+    model = project.build()
+
+    assert model.data.shape == (20, 20)

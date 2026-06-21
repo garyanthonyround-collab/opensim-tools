@@ -44,7 +44,17 @@ class TerrainProject:
         return 300000 + east, 500000 + north
 
     def build(self):
-        return self.mosaic.to_model()
+        model = self.mosaic.to_model()
+
+        min_x, min_y, max_x, max_y = self.bounds
+        cellsize = model.header.get("cellsize", 1)
+
+        crop_x = (min_x - model.header["xllcorner"]) // cellsize
+        crop_y = (min_y - model.header["yllcorner"]) // cellsize
+        crop_width = (max_x - min_x) // cellsize
+        crop_height = (max_y - min_y) // cellsize
+
+        return model.crop(crop_x, crop_y, crop_width, crop_height)
 
     @property
     def bounds(self):
