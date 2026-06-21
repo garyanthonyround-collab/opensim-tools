@@ -13,6 +13,7 @@ class TerrainProject:
     size_m: int | None = None
     resolution_samples: int | None = None
     height_range_m: tuple[float, float] | None = None
+    smooth_passes: int = 0
 
     def resolution(self, samples: int):
         self.resolution_samples = samples
@@ -29,6 +30,10 @@ class TerrainProject:
 
     def height_range(self, minimum: float, maximum: float):
         self.height_range_m = (minimum, maximum)
+        return self
+
+    def smooth(self, passes: int = 1):
+        self.smooth_passes = passes
         return self
 
     def _parse_reference(self, reference: str) -> tuple[int, int]:
@@ -67,6 +72,9 @@ class TerrainProject:
         if self.height_range_m:
             minimum, maximum = self.height_range_m
             model = model.normalize(minimum=minimum, maximum=maximum)
+
+        if self.smooth_passes:
+            model = model.smooth(passes=self.smooth_passes)
 
         return model
 
