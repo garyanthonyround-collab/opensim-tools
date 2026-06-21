@@ -8,3 +8,4 @@ class RegionModel:
     y: int
     size: int = 256
     terrain: str | None = None
+    estate: str | None = None

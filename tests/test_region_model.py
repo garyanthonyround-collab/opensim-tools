@@ -38,3 +38,23 @@ def test_region_model_stores_terrain():
     )
 
     assert region.terrain == "welcome.r32"
+
+def test_region_model_has_no_estate_by_default():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+    )
+
+    assert region.estate is None
+
+
+def test_region_model_stores_estate():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+        estate="Main Estate",
+    )
+
+    assert region.estate == "Main Estate"
