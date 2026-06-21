@@ -106,3 +106,14 @@ def test_terrain_project_required_tiles_use_dataset(tmp_path):
     tiles = project.required_tiles
 
     assert tiles[0].dataset == tmp_path
+
+def test_project_resolution_defaults_to_none():
+    project = TerrainProject()
+
+    assert project.resolution_samples is None
+
+
+def test_project_resolution_can_be_set():
+    project = TerrainProject().resolution(512)
+
+    assert project.resolution_samples == 512

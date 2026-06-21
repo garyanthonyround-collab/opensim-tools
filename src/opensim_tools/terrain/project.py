@@ -11,6 +11,11 @@ class TerrainProject:
     centre_reference: str | None = None
     centre_point: tuple[int, int] | None = None
     size_m: int | None = None
+    resolution_samples: int | None = None
+
+    def resolution(self, samples: int):
+        self.resolution_samples = samples
+        return self
 
     def centre(self, reference: str):
         self.centre_reference = reference.upper()
