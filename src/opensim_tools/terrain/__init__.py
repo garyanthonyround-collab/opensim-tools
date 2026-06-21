@@ -2,6 +2,6 @@
 Terrain processing tools for OpenSimulator.
 """
 
-from .builder import TerrainBuilder
+from .project import TerrainProject
 
-__all__ = ["TerrainBuilder"]
+__all__ = ["TerrainProject"]
