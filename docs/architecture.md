@@ -1,354 +1,289 @@
 # OpenSim Tools Architecture
 
-OpenSim Tools is designed as a reusable Python library with a thin command-line interface.
+## Overview
 
-The project started as terrain conversion tooling, but its architecture is intended to support a much broader OpenSimulator administration toolkit over time.
+OpenSim Tools is an object-oriented Python toolkit for administering OpenSimulator grids.
 
-The long-term goal is to provide a coherent toolset for terrain processing, region management, database operations, backups, services, assets, and automation.
+The project is designed as a reusable library with a lightweight command-line interface. All functionality is implemented within the library, allowing it to be reused by command-line tools, automation scripts, graphical applications, or third-party projects.
 
----
-
-## Design Principles
-
-OpenSim Tools follows a few core principles:
-
-1. **Library first, CLI second**
-2. **Small classes with clear responsibilities**
-3. **Composable terrain workflows**
-4. **Test-first development**
-5. **OpenSimulator-specific behaviour kept above generic terrain operations**
-
-The command-line interface should not contain complex business logic. It should parse user input, call the library, and report results.
+The long-term objective is to become the equivalent of **git** or **kubectl** for OpenSimulator administration.
 
 ---
 
-## Current Terrain Architecture
+# Architectural Principles
+
+The project follows a number of core design principles.
+
+## Single Responsibility
+
+Each class has one clearly defined responsibility.
+
+Processing logic belongs to processing classes.
+
+Workflow orchestration belongs to workflow classes.
+
+The command-line interface contains no business logic.
+
+---
+
+## Library First
+
+The library is the primary product.
+
+The command-line interface is simply a thin wrapper around the library API.
+
+This makes the toolkit reusable from Python while keeping the CLI straightforward.
+
+---
+
+## Test First
+
+Development follows a test-driven workflow.
+
+Every feature is implemented as:
+
+1. Write a failing test.
+2. Implement the feature.
+3. Run the complete test suite.
+4. Commit a single logical feature.
+
+This produces a clean and understandable Git history.
+
+---
+
+# Layered Architecture
+
+The terrain subsystem is organised into four layers.
 
 ```text
 CLI
  │
  ▼
-TerrainBuilder
+TerrainProject
  │
- ├── OSTile
- │
- ├── TerrainMosaic
+ ▼
+TerrainMosaic
  │
  ▼
 TerrainModel
  │
- ├── ascii_grid
- │
- ├── resample
- │
- ├── normalize
- │
- ├── preview
- │
- └── r32
+ ▼
+Low-level terrain utilities
 ```
 
-The terrain system is built around four main classes:
-
-| Class            | Responsibility                           |
-| ---------------- | ---------------------------------------- |
-| `OSTile`         | Represents one OS Terrain 50 tile        |
-| `TerrainMosaic`  | Represents a collection of terrain tiles |
-| `TerrainModel`   | Represents terrain data in memory        |
-| `TerrainBuilder` | Orchestrates complete terrain workflows  |
+Each layer has a single responsibility.
 
 ---
 
-## `OSTile`
+# Layer Responsibilities
+
+## Low-Level Utilities
+
+Low-level modules provide individual terrain processing operations.
+
+Current modules include:
+
+* ascii_grid.py
+* normalize.py
+* preview.py
+* r32.py
+* resample.py
+
+These modules perform isolated processing tasks and contain no workflow logic.
+
+---
+
+## TerrainModel
+
+`TerrainModel` represents terrain data held in memory.
+
+It is responsible for terrain manipulation.
+
+Current operations include:
+
+* Loading ASCII Grid files
+* Cropping
+* Resampling
+* Height normalisation
+* Mean smoothing
+* PNG preview generation
+* RAW32 export
+
+`TerrainModel` has no knowledge of terrain tiles or projects.
+
+---
+
+## TerrainMosaic
+
+`TerrainMosaic` represents a collection of terrain tiles.
+
+Responsibilities include:
+
+* Managing tile collections
+* Validating tile layouts
+* Loading ASCII Grid files
+* Stitching terrain into a single NumPy array
+* Producing a TerrainModel
+
+It has no knowledge of project configuration.
+
+---
+
+## OSTile
 
 `OSTile` represents a single Ordnance Survey Terrain 50 tile.
 
-It is responsible for:
+Responsibilities include:
 
-* Validating tile references
-* Resolving tile paths
-* Checking whether source files exist
-* Reading tile origin coordinates
-* Calculating tile bounds
-
-Example:
-
-```python
-from opensim_tools.terrain.os_grid import OSTile
-
-tile = OSTile("NY43")
-
-print(tile.reference)
-print(tile.path)
-print(tile.exists)
-print(tile.origin)
-print(tile.bounds)
-```
-
-`OSTile` does not process terrain data. It only describes where a tile is and what its spatial extent is.
+* Grid reference parsing
+* Dataset path resolution
+* Tile metadata
+* Tile origin calculation
 
 ---
 
-## `TerrainMosaic`
+## TerrainProject
 
-`TerrainMosaic` represents a group of `OSTile` objects.
+`TerrainProject` is the primary public API for terrain generation.
 
-It is responsible for:
+It represents an entire terrain generation workflow rather than an individual processing operation.
 
-* Managing tile collections
-* Validating that required files exist
-* Reporting tile references and paths
-* Calculating mosaic extent
-* Stitching tiles into a single `TerrainModel`
+Current configuration options include:
 
-Example:
+* Project centre
+* Physical project size
+* Output resolution
+* Height range
+* Smoothing passes
 
-```python
-from opensim_tools.terrain.mosaic import TerrainMosaic
-
-mosaic = TerrainMosaic.from_tiles(
-    "NY43",
-    "NY44",
-    "NY53",
-    "NY54",
-)
-
-terrain = mosaic.to_model()
-```
-
-`TerrainMosaic.to_model()` loads each tile, orders tiles by origin coordinates, stitches their arrays together, and returns a `TerrainModel`.
-
-It deliberately does **not** resample, normalise, smooth, crop, or export terrain. Those remain `TerrainModel` responsibilities.
+Calling `build()` executes the complete workflow.
 
 ---
 
-## `TerrainModel`
+# Terrain Generation Pipeline
 
-`TerrainModel` represents terrain data in memory.
+The complete terrain generation pipeline is:
 
-It contains:
+```text
+Project configuration
+        │
+        ▼
+Determine project bounds
+        │
+        ▼
+Determine required terrain tiles
+        │
+        ▼
+Load terrain tiles
+        │
+        ▼
+Construct TerrainMosaic
+        │
+        ▼
+Generate TerrainModel
+        │
+        ▼
+Crop
+        │
+        ▼
+Resample
+        │
+        ▼
+Normalise
+        │
+        ▼
+Smooth
+        │
+        ▼
+Finished TerrainModel
+```
 
-* ASCII Grid header metadata
-* A NumPy array of height values
+Each processing stage is optional where appropriate.
 
-It is responsible for terrain operations:
+`TerrainProject` orchestrates the workflow while `TerrainModel` performs the processing.
 
-* Resampling
-* Height normalisation
-* Smoothing
-* PNG preview export
-* OpenSimulator RAW32 export
+---
 
-Example:
+# Public API
+
+The recommended public API is the fluent `TerrainProject` interface.
 
 ```python
+from opensim_tools.terrain import TerrainProject
+
 terrain = (
-    TerrainMosaic
-        .from_tiles("NY43", "NY44", "NY53", "NY54")
-        .to_model()
-        .resample(512)
-        .normalize(2, 65)
+    TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+        .resolution(512)
+        .height_range(2, 65)
         .smooth(1)
+        .build()
 )
 
 terrain.write_r32("terrain.r32")
 terrain.write_preview("terrain.png")
 ```
 
-`TerrainModel` methods return `self` where appropriate, allowing fluent method chaining.
-
 ---
 
-## `TerrainBuilder`
-
-`TerrainBuilder` provides higher-level workflow orchestration.
-
-It is intended for cases where callers want a complete terrain-processing pipeline rather than manually composing lower-level objects.
-
-Current responsibilities include:
-
-* Building terrain from an ASCII Grid file
-* Building terrain from an OS Terrain 50 tile
-* Applying resampling
-* Applying normalisation
-* Applying smoothing
-* Writing output files and metadata
-
-`TerrainBuilder` is useful for command-line workflows, while `TerrainModel`, `OSTile`, and `TerrainMosaic` remain useful for direct library usage.
-
----
-
-## `TerrainProject`
-
-`TerrainProject` is the high-level terrain workflow API.
-
-It is intended to replace `TerrainBuilder` as the main orchestration layer for terrain generation.
-
-Responsibilities:
-
-- Store project intent such as centre point, size, dataset, and output resolution
-- Calculate project bounds
-- Determine required OS Terrain 50 tiles
-- Create a `TerrainMosaic`
-- Build a `TerrainModel`
-- Eventually apply cropping, resampling, normalisation, smoothing, and export workflows
-
-`TerrainProject` should become the primary API used by the CLI.
-
-
-## Module Responsibilities
-
-| Module          | Responsibility                          |
-| --------------- | --------------------------------------- |
-| `ascii_grid.py` | Read OS Terrain 50 ASCII Grid files     |
-| `model.py`      | In-memory terrain model                 |
-| `mosaic.py`     | Multi-tile terrain mosaics              |
-| `os_grid.py`    | OS Terrain 50 tile references and paths |
-| `builder.py`    | High-level terrain build workflows      |
-| `normalize.py`  | Height normalisation                    |
-| `resample.py`   | Resampling and smoothing                |
-| `preview.py`    | PNG preview generation                  |
-| `r32.py`        | OpenSimulator RAW32 export              |
-
----
-
-## Data Flow
-
-A typical terrain mosaic workflow follows this path:
+# Class Relationships
 
 ```text
-Tile references
-      │
-      ▼
-OSTile objects
-      │
-      ▼
+TerrainProject
+        │
+        ▼
 TerrainMosaic
-      │
-      ▼
-ASCII Grid files
-      │
-      ▼
-NumPy arrays
-      │
-      ▼
+        │
+        ▼
 TerrainModel
-      │
-      ├── resample
-      ├── normalise
-      ├── smooth
-      ├── write preview
-      └── write RAW32
+        ▲
+        │
+Low-level processing modules
 ```
 
-This keeps data loading, spatial organisation, terrain transformation, and file output separate.
+The relationships are intentionally one-directional.
+
+Low-level processing modules know nothing about higher-level workflow classes.
 
 ---
 
-## Why the CLI Should Stay Thin
-
-The CLI should act as an adapter rather than the core of the application.
-
-Good CLI responsibilities:
-
-* Parse command-line arguments
-* Validate user input
-* Call library classes
-* Display output
-* Return suitable exit codes
-
-Poor CLI responsibilities:
-
-* Parsing terrain files directly
-* Manually stitching arrays
-* Performing resampling logic
-* Writing OpenSimulator formats directly
-* Owning database or service-management behaviour
-
-Keeping the CLI thin makes the project easier to test and easier to reuse from scripts, notebooks, services, or future graphical tools.
-
----
-
-## Testing Philosophy
-
-Every new feature should include tests.
-
-Current test coverage includes:
-
-* `TerrainModel`
-* `OSTile`
-* `TerrainMosaic`
-* Terrain stitching via `TerrainMosaic.to_model()`
-
-Tests are run with:
-
-```bash
-pytest
-```
-
-The project should continue to prefer small unit tests around library behaviour rather than large end-to-end tests around CLI output.
-
----
-
-## Future Architecture
-
-OpenSim Tools is expected to grow beyond terrain processing.
-
-Potential future packages:
+# Current Package Structure
 
 ```text
 opensim_tools/
-│
-├── terrain/
-├── regions/
-├── database/
-├── services/
-├── assets/
-├── backups/
-└── cli/
+    terrain/
+        ascii_grid.py
+        normalize.py
+        os_grid.py
+        preview.py
+        project.py
+        mosaic.py
+        model.py
+        r32.py
+        resample.py
 ```
 
-Possible future responsibilities:
-
-| Package    | Responsibility                                          |
-| ---------- | ------------------------------------------------------- |
-| `terrain`  | Terrain processing and varregion support                |
-| `regions`  | Region creation, cloning, configuration, and inspection |
-| `database` | MariaDB backup, restore, and diagnostics                |
-| `services` | systemd integration and service monitoring              |
-| `assets`   | Asset and inventory tooling                             |
-| `backups`  | OAR/IAR/archive workflows                               |
-| `cli`      | Command-line interface adapters                         |
-
-The terrain package should remain a self-contained subsystem while the wider project grows around it.
+Each module contains one primary responsibility.
 
 ---
 
-## Release Direction
+# Future Architecture
 
-Current milestone:
+The terrain subsystem is intended to become one component within the wider OpenSim administration toolkit.
 
-* `v0.6.0` — Terrain mosaics and stitching
+The same architectural pattern will be used throughout the project.
 
-Planned milestones:
+```text
+TerrainProject
+RegionProject
+ServiceProject
+AssetProject
+BackupProject
+DatabaseProject
+```
 
-* `v0.7.0` — Documentation, GitHub Actions, packaging polish
-* `v0.8.0` — Varregion terrain support
-* `v0.9.0` — Region administration tools
-* `v1.0.0` — Stable OpenSimulator administration toolkit
+Each project class will provide a high-level workflow while delegating processing to specialised domain classes.
 
----
+This consistent architecture will allow both the command-line interface and external Python applications to interact with OpenSimulator through a unified and reusable API.
 
-## Summary
-
-OpenSim Tools is intentionally structured around composable, testable Python objects.
-
-The current terrain architecture separates:
-
-* Tile identity: `OSTile`
-* Tile collections: `TerrainMosaic`
-* Terrain data and operations: `TerrainModel`
-* Workflow orchestration: `TerrainBuilder`
-* User interaction: CLI
-
-This separation keeps the codebase maintainable today and gives the project room to grow into a broader OpenSimulator administration toolkit.
