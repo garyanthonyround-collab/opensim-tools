@@ -118,16 +118,24 @@ def test_project_resolution_can_be_set():
 
     assert project.resolution_samples == 512
 
-def test_project_build_crops_model_to_project_size():
+def test_project_build_crops_model_to_project_size(monkeypatch):
+    model = FakeTerrainModel()
+
+    monkeypatch.setattr(
+        TerrainMosaic,
+        "to_model",
+        lambda self: model,
+    )
+
     project = (
         TerrainProject()
         .centre("NY4452")
         .size(1024)
     )
 
-    model = project.build()
+    result = project.build()
 
-    assert model.data.shape == (20, 20)
+    assert result.crop_called_with == project.bounds
 
 def test_project_build_resamples_when_resolution_set():
     project = (
