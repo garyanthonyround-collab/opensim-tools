@@ -7,3 +7,4 @@ class RegionModel:
     x: int
     y: int
     size: int = 256
+    terrain: str | None = None

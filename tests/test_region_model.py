@@ -22,3 +22,19 @@ def test_region_model_stores_size():
     region = RegionModel(name="Welcome", x=1000, y=1000, size=512)
 
     assert region.size == 512
+
+def test_region_model_has_no_terrain_by_default():
+    region = RegionModel(name="Welcome", x=1000, y=1000)
+
+    assert region.terrain is None
+
+
+def test_region_model_stores_terrain():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+        terrain="welcome.r32",
+    )
+
+    assert region.terrain == "welcome.r32"
