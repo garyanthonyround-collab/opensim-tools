@@ -128,3 +128,15 @@ def test_project_build_crops_model_to_project_size():
     model = project.build()
 
     assert model.data.shape == (20, 20)
+
+def test_project_build_resamples_when_resolution_set():
+    project = (
+        TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+        .resolution(512)
+    )
+
+    model = project.build()
+  
+    assert model.data.shape == (512,512)

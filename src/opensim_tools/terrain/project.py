@@ -54,7 +54,11 @@ class TerrainProject:
         crop_width = (max_x - min_x) // cellsize
         crop_height = (max_y - min_y) // cellsize
 
-        return model.crop(crop_x, crop_y, crop_width, crop_height)
+        model=model.crop(crop_x, crop_y, crop_width, crop_height)
+
+        if self.resolution_samples:
+            model=model.resample(size=self.resolution_samples)
+        return model
 
     @property
     def bounds(self):
