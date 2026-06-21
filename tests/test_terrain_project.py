@@ -6,6 +6,32 @@ from opensim_tools.terrain.mosaic import TerrainMosaic
 
 from opensim_tools.terrain.model import TerrainModel
 
+
+class FakeTerrainModel:
+    def __init__(self):
+        self.header = {
+            "cellsize": 50,
+            "xllcorner": 343000,
+            "yllcorner": 551000,
+        }
+        self.calls = []
+
+    def crop(self, x, y, width, height):
+        self.calls.append(("crop", x, y, width, height))
+        return self
+
+    def resample(self, size):
+        self.calls.append(("resample", size))
+        return self
+
+    def normalize(self, minimum, maximum):
+        self.calls.append(("normalize", minimum, maximum))
+        return self
+
+    def smooth(self, passes):
+        self.calls.append(("smooth", passes))
+        return self
+
 def write_ascii_grid(path, xllcorner, yllcorner, value=1):
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -135,9 +161,17 @@ def test_project_build_crops_model_to_project_size(monkeypatch):
 
     result = project.build()
 
-    assert result.crop_called_with == project.bounds
+    assert model.calls == [("crop", 9, 9, 20, 20)]
 
-def test_project_build_resamples_when_resolution_set():
+def test_project_build_resamples_when_resolution_set(monkeypatch):
+    model = FakeTerrainModel()
+
+    monkeypatch.setattr(
+        TerrainMosaic,
+        "to_model",
+        lambda self: model,
+    )
+
     project = (
         TerrainProject()
         .centre("NY4452")
@@ -147,9 +181,20 @@ def test_project_build_resamples_when_resolution_set():
 
     model = project.build()
   
-    assert model.data.shape == (512,512)
+    assert model.calls == [
+    ("crop", 9, 9, 20, 20),
+    ("resample", 512),
+    ]
 
-def test_project_build_normalizes_when_height_range_set():
+def test_project_build_normalizes_when_height_range_set(monkeypatch):
+    model = FakeTerrainModel()
+
+    monkeypatch.setattr(
+        TerrainMosaic,
+        "to_model",
+        lambda self: model,
+    )
+
     project = (
         TerrainProject()
         .centre("NY4452")
@@ -160,10 +205,21 @@ def test_project_build_normalizes_when_height_range_set():
 
     model = project.build()
 
-    assert model.data.min() >= 2
-    assert model.data.max() <= 65
+    assert model.calls == [
+    ("crop", 9, 9, 20, 20),
+    ("resample", 512),
+    ("normalize", 2, 65),
+    ]
 
-def test_project_build_smooths_when_requested():
+def test_project_build_smooths_when_requested(monkeypatch):
+    model = FakeTerrainModel()
+
+    monkeypatch.setattr(
+        TerrainMosaic,
+        "to_model",
+        lambda self: model,
+    )
+
     project = (
         TerrainProject()
         .centre("NY4452")
@@ -175,4 +231,9 @@ def test_project_build_smooths_when_requested():
 
     model = project.build()
 
-    assert model.data.shape == (512, 512)
+    assert model.calls == [
+    ("crop", 9, 9, 20, 20),
+    ("resample", 512),
+    ("normalize", 2, 65),
+    ("smooth", 1),
+    ]
