@@ -140,3 +140,17 @@ def test_project_build_resamples_when_resolution_set():
     model = project.build()
   
     assert model.data.shape == (512,512)
+
+def test_project_build_normalizes_when_height_range_set():
+    project = (
+        TerrainProject()
+        .centre("NY4452")
+        .size(1024)
+        .resolution(512)
+        .height_range(2, 65)
+    )
+
+    model = project.build()
+
+    assert model.data.min() >= 2
+    assert model.data.max() <= 65

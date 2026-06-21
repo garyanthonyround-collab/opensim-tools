@@ -12,6 +12,7 @@ class TerrainProject:
     centre_point: tuple[int, int] | None = None
     size_m: int | None = None
     resolution_samples: int | None = None
+    height_range_m: tuple[float, float] | None = None
 
     def resolution(self, samples: int):
         self.resolution_samples = samples
@@ -24,6 +25,10 @@ class TerrainProject:
 
     def size(self, metres: int):
         self.size_m = metres
+        return self
+
+    def height_range(self, minimum: float, maximum: float):
+        self.height_range_m = (minimum, maximum)
         return self
 
     def _parse_reference(self, reference: str) -> tuple[int, int]:
@@ -58,6 +63,11 @@ class TerrainProject:
 
         if self.resolution_samples:
             model=model.resample(size=self.resolution_samples)
+
+        if self.height_range_m:
+            minimum, maximum = self.height_range_m
+            model = model.normalize(minimum=minimum, maximum=maximum)
+
         return model
 
     @property
