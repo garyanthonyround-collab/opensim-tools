@@ -59,3 +59,14 @@ def test_region_ini_contains_internal_address():
     ini = RegionIni.from_model(region)
 
     assert "InternalAddress = 0.0.0.0" in ini.text
+
+def test_region_ini_contains_internal_port():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+    )
+
+    ini = RegionIni.from_model(region)
+
+    assert "InternalPort = 9000" in ini.text
