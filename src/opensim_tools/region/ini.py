@@ -19,6 +19,9 @@ class RegionIni:
             "AllowAlternatePorts = False\n"
         )
 
+        if model.terrain:
+            text += f"TerrainImage = {model.terrain}\n"
+
         return cls(text)
 
     def write(self, path: Path):
