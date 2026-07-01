@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 class RegionIni:
 
     def __init__(self, text):
@@ -8,11 +9,11 @@ class RegionIni:
     @classmethod
     def from_model(cls, model):
         text = (
-            "[Welcome]\n"
-            "RegionName = Welcome\n"
-            "Location = 1000,1001\n"
-            "SizeX = 256\n"
-            "SizeY = 256\n"
+            f"[{model.name}]\n"
+            f"RegionName = {model.name}\n"
+            f"Location = {model.x},{model.y}\n"
+            f"SizeX = {model.size}\n"
+            f"SizeY = {model.size}\n"
             "InternalAddress = 0.0.0.0\n"
             "InternalPort = 9000\n"
             "ExternalHostName = SYSTEMIP\n"
@@ -21,6 +22,9 @@ class RegionIni:
 
         if model.terrain:
             text += f"TerrainImage = {model.terrain}\n"
+
+        if model.estate:
+            text += f"EstateName = {model.estate}\n"
 
         return cls(text)
 

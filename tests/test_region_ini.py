@@ -96,3 +96,15 @@ def test_region_ini_contains_terrain_image():
     ini = RegionIni.from_model(region)
 
     assert "TerrainImage = welcome.r32" in ini.text
+
+def test_region_ini_uses_region_name():
+    region = RegionModel(
+        name="Sandbox",
+        x=1000,
+        y=1000,
+    )
+
+    ini = RegionIni.from_model(region)
+
+    assert "[Sandbox]" in ini.text
+    assert "RegionName = Sandbox" in ini.text
