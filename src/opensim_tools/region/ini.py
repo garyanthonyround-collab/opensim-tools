@@ -10,6 +10,9 @@ class RegionIni:
         text = (
             "[Welcome]\n"
             "RegionName = Welcome\n"
+            "Location = 1000,1001\n"
+            "SizeX = 256\n"
+            "SizeY = 256\n"
         )
 
         return cls(text)
