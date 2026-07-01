@@ -70,3 +70,10 @@ def test_region_ini_contains_internal_port():
     ini = RegionIni.from_model(region)
 
     assert "InternalPort = 9000" in ini.text
+
+def test_region_ini_contains_external_hostname():
+    region = RegionModel(name="Welcome", x=1000, y=1000)
+
+    ini = RegionIni.from_model(region)
+
+    assert "ExternalHostName = SYSTEMIP" in ini.text

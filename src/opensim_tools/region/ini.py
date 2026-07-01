@@ -15,6 +15,7 @@ class RegionIni:
             "SizeY = 256\n"
             "InternalAddress = 0.0.0.0\n"
             "InternalPort = 9000\n"
+            "ExternalHostName = SYSTEMIP\n"
         )
 
         return cls(text)
