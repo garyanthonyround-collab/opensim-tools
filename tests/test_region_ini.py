@@ -77,3 +77,10 @@ def test_region_ini_contains_external_hostname():
     ini = RegionIni.from_model(region)
 
     assert "ExternalHostName = SYSTEMIP" in ini.text
+
+def test_region_ini_disables_alternate_ports():
+    region = RegionModel(name="Welcome", x=1000, y=1000)
+
+    ini = RegionIni.from_model(region)
+
+    assert "AllowAlternatePorts = False" in ini.text

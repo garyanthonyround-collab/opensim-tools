@@ -16,6 +16,7 @@ class RegionIni:
             "InternalAddress = 0.0.0.0\n"
             "InternalPort = 9000\n"
             "ExternalHostName = SYSTEMIP\n"
+            "AllowAlternatePorts = False\n"
         )
 
         return cls(text)
