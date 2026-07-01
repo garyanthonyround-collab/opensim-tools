@@ -13,6 +13,7 @@ class RegionIni:
             "Location = 1000,1001\n"
             "SizeX = 256\n"
             "SizeY = 256\n"
+            "InternalAddress = 0.0.0.0\n"
         )
 
         return cls(text)
