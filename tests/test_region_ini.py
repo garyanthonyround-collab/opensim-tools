@@ -71,6 +71,18 @@ def test_region_ini_contains_internal_port():
 
     assert "InternalPort = 9000" in ini.text
 
+def test_region_ini_uses_region_internal_port():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+        internal_port=9001,
+    )
+
+    ini = RegionIni.from_model(region)
+
+    assert "InternalPort = 9001" in ini.text
+
 def test_region_ini_contains_external_hostname():
     region = RegionModel(name="Welcome", x=1000, y=1000)
 

@@ -15,7 +15,7 @@ class RegionIni:
             f"SizeX = {model.size}\n"
             f"SizeY = {model.size}\n"
             "InternalAddress = 0.0.0.0\n"
-            "InternalPort = 9000\n"
+            f"InternalPort = {model.internal_port}\n"
             "ExternalHostName = SYSTEMIP\n"
             "AllowAlternatePorts = False\n"
         )
