@@ -23,6 +23,22 @@ def test_region_model_stores_size():
 
     assert region.size == 512
 
+def test_region_model_defaults_to_standard_internal_port():
+    region = RegionModel(name="Welcome", x=1000, y=1000)
+
+    assert region.internal_port == 9000
+
+
+def test_region_model_stores_internal_port():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+        internal_port=9001,
+    )
+
+    assert region.internal_port == 9001
+
 def test_region_model_has_no_terrain_by_default():
     region = RegionModel(name="Welcome", x=1000, y=1000)
 
