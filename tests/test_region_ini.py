@@ -97,6 +97,18 @@ def test_region_ini_contains_terrain_image():
 
     assert "TerrainImage = welcome.r32" in ini.text
 
+def test_region_ini_contains_estate_name():
+    region = RegionModel(
+        name="Welcome",
+        x=1000,
+        y=1000,
+        estate="Main Estate",
+    )
+
+    ini = RegionIni.from_model(region)
+
+    assert "EstateName = Main Estate" in ini.text
+
 def test_region_ini_uses_region_name():
     region = RegionModel(
         name="Sandbox",
